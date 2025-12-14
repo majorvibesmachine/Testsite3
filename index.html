@@ -86,6 +86,7 @@
   }
 }
 </script>
+<link rel="stylesheet" href="/index.css">
 </head>
 <body>
   <div id="root"></div>
@@ -189,7 +190,7 @@
       );
     };
 
-    // 4. PhotoLungs
+    // 4. PhotoLungs (Updated for Colorization)
     const PhotoLungs = ({ src, alt, className = "" }) => {
       const outerContainerRef = useRef(null);
       const containerRef = useRef(null);
@@ -205,7 +206,24 @@
         
         if (!img || !container) return;
 
-        // Breathe
+        // 1. Colorization on Scroll (Grayscale -> Color)
+        // Starts grayscale, scrubs to color as it hits center screen. 
+        // Reverses to grayscale if you scroll back up.
+        gsap.fromTo(img, 
+          { filter: "grayscale(100%)" },
+          {
+            filter: "grayscale(0%)",
+            ease: "none",
+            scrollTrigger: {
+              trigger: container,
+              start: "top 90%", // Start adding color when image enters viewport
+              end: "center center", // Full color when image is centered
+              scrub: true
+            }
+          }
+        );
+
+        // 2. Breathe
         const breatheAnim = gsap.to(img, {
           scale: 1.05,
           duration: 10,
@@ -214,7 +232,7 @@
           ease: "sine.inOut"
         });
 
-        // Parallax
+        // 3. Parallax
         const parallaxAnim = gsap.fromTo(img, 
           { y: "-10%" },
           {
@@ -229,7 +247,7 @@
           }
         );
 
-        // Physics
+        // 4. Physics
         let currentVelocity = 0;
         let rotation1 = 0;
         let rotation2 = 0;
@@ -278,7 +296,7 @@
                 ref={imgRef}
                 src={src} 
                 alt={alt} 
-                className="w-full h-[120%] object-cover object-center origin-center will-change-transform"
+                className="w-full h-[120%] object-cover object-center origin-center will-change-transform will-change-[filter]"
             />
           </div>
         </div>
@@ -405,7 +423,7 @@
       );
     };
 
-    // 7. LotusScroll
+    // 7. LotusScroll (Updated Position & Colors)
     const LotusScroll = () => {
       const videoRef = useRef(null);
       const containerRef = useRef(null);
@@ -437,7 +455,7 @@
 
         ScrollTrigger.create({
           trigger: containerRef.current,
-          start: "top 70%", 
+          start: "top 95%", 
           end: "bottom top", 
           onEnter: () => playVideo(),       
           onLeaveBack: () => reverseVideo(),
@@ -451,15 +469,20 @@
       return (
         <div 
           ref={containerRef} 
-          className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden z-0"
+          className="absolute bottom-[-5%] left-[-15%] md:bottom-0 md:left-0 z-0 pointer-events-none"
         >
+          {/* 
+             - Removed 'grayscale': Restores colors.
+             - Kept 'mix-blend-multiply': Fixes white background issue on iOS Safari if transparency fails.
+             - Removed 'opacity-60': Increases vibrancy.
+          */}
           <video
             ref={videoRef}
-            src="lotus.webm"
+            src="media/lotus.webm"
             muted
             playsInline
             preload="auto"
-            className="w-[600px] max-w-full opacity-60 mix-blend-multiply filter contrast-125 grayscale"
+            className="w-[250px] md:w-[400px] max-w-full mix-blend-multiply contrast-125"
           />
         </div>
       );
@@ -498,9 +521,10 @@
                 loop 
                 playsInline 
                 className="w-full h-full object-cover filter contrast-[1.1] brightness-90"
-                src="hero.mp4"
+                src="media/hero.mp4"
               />
-              <div className="absolute inset-0 bg-ink-black opacity-30 mix-blend-multiply"></div>
+              {/* Reduced opacity from 30 to 10 and removed mix-blend-multiply to allow color through */}
+              <div className="absolute inset-0 bg-ink-black opacity-10"></div>
             </div>
 
             <div className="relative z-10 text-center text-kasavu-cream mix-blend-difference px-4 w-full">
@@ -549,7 +573,7 @@
               
               <div className="md:col-span-4 md:col-start-8 mt-12 md:mt-0 relative">
                 <div className="md:translate-y-12">
-                  <PhotoLungs src="photo1.jpg" alt="Texture Shot" className="aspect-[3/4]" />
+                  <PhotoLungs src="media/photo1.jpg" alt="Texture Shot" className="aspect-[3/4]" />
                   <p className="absolute -bottom-8 -left-8 font-sans text-[0.6rem] tracking-widest -rotate-90 origin-top-right text-antique-gold">
                     FIG. 01 — ORIGIN
                   </p>
@@ -557,7 +581,7 @@
               </div>
 
               <div className="md:col-span-6 md:col-start-1 relative">
-                 <PhotoLungs src="photo2.jpg" alt="Silhouette" className="aspect-video" />
+                 <PhotoLungs src="media/photo2.jpg" alt="Silhouette" className="aspect-video" />
                  <div className="absolute top-4 right-4 md:-right-12 w-24 h-[1px] bg-antique-gold"></div>
               </div>
 
@@ -572,7 +596,7 @@
               </div>
 
               <div className="md:col-span-8 md:col-start-3 relative py-12 md:py-24">
-                 <PhotoLungs src="photo4.jpg" alt="Atmospheric Detail" className="aspect-[21/9]" />
+                 <PhotoLungs src="media/photo4.jpg" alt="Atmospheric Detail" className="aspect-[21/9]" />
                  <div className="flex justify-between items-end mt-4">
                    <div className="h-[1px] w-24 bg-ink-black opacity-30"></div>
                    <InkText 
@@ -584,7 +608,8 @@
               </div>
               
                <div className="md:col-span-8 md:col-start-3 text-center py-24">
-                 <PhotoLungs src="candid.jpg" alt="Portrait" className="aspect-[4/5] md:w-1/2 mx-auto mb-12 grayscale hover:grayscale-0 transition-all duration-1000" />
+                 {/* Removed manual grayscale class here, handled by PhotoLungs now */}
+                 <PhotoLungs src="media/candid.jpg" alt="Portrait" className="aspect-[4/5] md:w-1/2 mx-auto mb-12" />
                  
                  <InkText 
                     as="div" 
@@ -602,7 +627,8 @@
           </section>
 
           {/* --- FINALE / RSVP --- */}
-          <section className="relative h-[60vh] flex flex-col items-center justify-center pb-24">
+          {/* Increased padding-bottom significantly (pb-48) to push RSVP button up away from bottom elements */}
+          <section className="relative h-[60vh] flex flex-col items-center justify-center pb-48">
             <LotusScroll />
 
             <div className="relative z-10 w-[1px] h-24 bg-ink-black mb-12"></div>
@@ -611,7 +637,7 @@
             
             <button 
               onClick={() => setIsRSVPOpen(true)}
-              className="relative z-10 group px-12 py-4 overflow-hidden"
+              className="relative z-20 group px-12 py-4 overflow-hidden"
             >
               <span className="relative z-10 font-sans text-sm tracking-[0.3em] group-hover:text-kasavu-cream transition-colors duration-300">
                 RSVP
@@ -631,5 +657,6 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
+<script type="module" src="/index.tsx"></script>
 </body>
 </html>
