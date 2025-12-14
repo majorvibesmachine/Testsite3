@@ -422,7 +422,7 @@
       );
     };
 
-    // 7. LotusScroll (Updated Position & Colors)
+    // 7. LotusScroll (Updated Position & Colors, iOS Fix)
     const LotusScroll = () => {
       const videoRef = useRef(null);
       const containerRef = useRef(null);
@@ -471,9 +471,8 @@
           className="absolute bottom-[-5%] left-[-15%] md:bottom-0 md:left-0 z-0 pointer-events-none"
         >
           {/* 
-             - Removed 'grayscale': Restores colors.
-             - Kept 'mix-blend-multiply': Fixes white background issue on iOS Safari if transparency fails.
-             - Removed 'opacity-60': Increases vibrancy.
+             - REMOVED 'contrast-125': Filters conflict with blend modes on iOS, causing white background.
+             - Kept 'mix-blend-multiply': Essential for handling white background of the video file.
           */}
           <video
             ref={videoRef}
@@ -481,7 +480,7 @@
             muted
             playsInline
             preload="auto"
-            className="w-[250px] md:w-[400px] max-w-full mix-blend-multiply contrast-125"
+            className="w-[250px] md:w-[400px] max-w-full mix-blend-multiply"
           />
         </div>
       );
