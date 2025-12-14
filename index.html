@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Karthika & Vaibhav | The Narrative</title>
+    
+    <!-- Fonts: Cormorant Garamond (Headlines) and Syncopate (Metadata) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'kasavu-cream': '#FDF6E3',
+              'ink-black': '#1a1a1a',
+              'antique-gold': '#D4AF37',
+            },
+            fontFamily: {
+              serif: ['"Cormorant Garamond"', 'serif'],
+              sans: ['"Syncopate"', 'sans-serif'],
+              // Assuming 'Birdhouse' is a custom font you will provide or a system fallback
+              birdhouse: ['"Birdhouse"', 'cursive', 'serif'],
+            },
+            backgroundImage: {
+              'noise': "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnPjxmaWx0ZXIgaWQ9J24nPjxmZVR1cmJ1bGVuY2UgdHlwZT0nZnJhY3RhbE5vaXNlJyBiYXNlRnJlcXVlbmN5PScwLjgnIG51bU9jdGF2ZXM9JzMnIHN0aXRjaFRpbGVzPSdzdGl0Y2gnLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0nMTAwJScgaGVpZ2h0PScxMDAlJyBmaWxsPSd0cmFuc3BhcmVudCcvPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMC41Ii8+PC9zdmc+')",
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Custom Font Declaration */
+      @font-face {
+        font-family: 'Birdhouse';
+        src: url('/birdhouse.woff2') format('woff2'),
+             url('/birdhouse.woff') format('woff');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      /* Custom Cursor Hide */
+      body {
+        cursor: none;
+        background-color: #FDF6E3;
+        overflow-x: hidden;
+      }
+      /* Noise Animation Steps */
+      @keyframes noise-shift {
+        0% { transform: translate(0,0); }
+        10% { transform: translate(-5%,-5%); }
+        20% { transform: translate(-10%,5%); }
+        30% { transform: translate(5%,-10%); }
+        40% { transform: translate(-5%,15%); }
+        50% { transform: translate(-10%,5%); }
+        60% { transform: translate(15%,0); }
+        70% { transform: translate(0,10%); }
+        80% { transform: translate(-15%,0); }
+        90% { transform: translate(10%,5%); }
+        100% { transform: translate(5%,0); }
+      }
+      .animate-noise {
+        animation: noise-shift 2s steps(10) infinite;
+      }
+      /* Hide scrollbar for immersion */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #FDF6E3; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #D4AF37; 
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0",
+    "gsap/": "https://esm.sh/gsap@^3.14.2/",
+    "gsap": "https://esm.sh/gsap@^3.14.2"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
