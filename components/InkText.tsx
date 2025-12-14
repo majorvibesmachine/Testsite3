@@ -6,7 +6,7 @@ import { InkTextProps } from '../types';
 gsap.registerPlugin(ScrollTrigger);
 
 const InkText: React.FC<InkTextProps> = ({ text, className = "", as = 'p' }) => {
-  const elementRef = useRef<HTMLElement>(null);
+  const elementRef = useRef<any>(null);
   const Component = as;
 
   useEffect(() => {

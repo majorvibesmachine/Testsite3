@@ -29,7 +29,7 @@ const PhotoLungs: React.FC<ParallaxImageProps> = ({ src, alt, className = "" }) 
       ease: "sine.inOut"
     });
 
-    // 2. Parallax Effect on Scroll (Image moves inside mask)
+    // 2. Parallax Effect on Scroll
     const parallaxAnim = gsap.fromTo(img, 
       { y: "-10%" },
       {
@@ -44,35 +44,47 @@ const PhotoLungs: React.FC<ParallaxImageProps> = ({ src, alt, className = "" }) 
       }
     );
 
-    // 3. Kasavu Momentum Borders
+    // 3. Kasavu Momentum Physics Engine
+    // We track velocity separately to create a "drift" effect
+    let currentVelocity = 0;
     let rotation1 = 0;
     let rotation2 = 0;
     
-    const updateBorders = (self: ScrollTrigger) => {
-        // Get velocity (pixels per second approx)
-        let v = self.getVelocity();
-        // Cap the velocity so it doesn't spin wildly (Max 300)
-        const cappedV = Math.max(Math.min(v, 300), -300);
-        
-        // Add momentum to rotation (Momentum factor)
-        // Border 1: Clockwise
-        rotation1 += cappedV * 0.002; 
-        // Border 2: Counter-Clockwise (faster)
-        rotation2 -= cappedV * 0.003;
+    // Capture scroll velocity
+    const velocityTrigger = ScrollTrigger.create({
+        trigger: document.body,
+        onUpdate: (self) => {
+            const v = self.getVelocity();
+            // "Kick" the velocity based on scroll speed, capped to avoid chaos
+            // 0.002 is the sensitivity factor
+            const targetV = Math.max(Math.min(v, 1000), -1000) * 0.002;
+            
+            // Apply this kick to our running velocity
+            currentVelocity = targetV;
+        }
+    });
 
-        if (border1) gsap.set(border1, { rotation: rotation1 });
-        if (border2) gsap.set(border2, { rotation: rotation2 });
+    // Run physics loop (60fps) to apply friction
+    const physicsTick = () => {
+        // Apply velocity to rotations
+        rotation1 += currentVelocity;       // Layer 1 moves clockwise
+        rotation2 -= currentVelocity * 1.5; // Layer 2 moves counter-clockwise and faster
+
+        // Friction: Multiply by < 1 to slowly decay speed (0.95 = Heavy Silk)
+        currentVelocity *= 0.95; 
+
+        // Apply transforms
+        if (border1) border1.style.transform = `rotate(${rotation1}deg)`;
+        if (border2) border2.style.transform = `rotate(${rotation2}deg)`;
     };
 
-    const borderScrollTrigger = ScrollTrigger.create({
-        trigger: document.body, // Track global scroll for border momentum
-        onUpdate: updateBorders
-    });
+    gsap.ticker.add(physicsTick);
 
     return () => {
       breatheAnim.kill();
       parallaxAnim.kill();
-      borderScrollTrigger.kill();
+      velocityTrigger.kill();
+      gsap.ticker.remove(physicsTick);
     };
   }, []);
 
@@ -83,14 +95,14 @@ const PhotoLungs: React.FC<ParallaxImageProps> = ({ src, alt, className = "" }) 
       {/* Kasavu Border 1 (Outer, Slow) */}
       <div 
         ref={border1Ref}
-        className="absolute -inset-4 border border-dashed border-antique-gold opacity-60 z-0 pointer-events-none"
+        className="absolute -inset-4 border border-dashed border-antique-gold opacity-60 z-0 pointer-events-none will-change-transform"
         style={{ borderWidth: '1px' }}
       ></div>
 
       {/* Kasavu Border 2 (Inner, Fast) */}
       <div 
         ref={border2Ref}
-        className="absolute -inset-2 border border-dashed border-antique-gold opacity-80 z-0 pointer-events-none"
+        className="absolute -inset-2 border border-dashed border-antique-gold opacity-80 z-0 pointer-events-none will-change-transform"
         style={{ borderWidth: '0.5px' }}
       ></div>
 

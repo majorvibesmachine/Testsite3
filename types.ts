@@ -7,7 +7,7 @@ export interface ParallaxImageProps {
 export interface InkTextProps {
   text: string;
   className?: string;
-  as?: 'p' | 'h1' | 'h2' | 'span';
+  as?: 'p' | 'h1' | 'h2' | 'span' | 'div';
 }
 
 export interface GridLineProps {

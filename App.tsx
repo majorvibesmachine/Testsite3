@@ -18,8 +18,8 @@ const App: React.FC = () => {
   // Parallax for the ampersand in Hero
   useEffect(() => {
     gsap.to(".hero-ampersand", {
-      y: 100,
-      opacity: 0,
+      y: 20, 
+      opacity: 0.8,
       scrollTrigger: {
         trigger: ".hero-section",
         start: "top top",
@@ -30,7 +30,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-kasavu-cream text-ink-black selection:bg-antique-gold selection:text-white">
+    <div className="relative min-h-screen bg-kasavu-cream text-ink-black selection:bg-antique-gold selection:text-white cursor-none">
       <NoiseOverlay />
       <CandleCursor />
       
@@ -53,13 +53,16 @@ const App: React.FC = () => {
           <div className="absolute inset-0 bg-ink-black opacity-30 mix-blend-multiply"></div>
         </div>
 
-        <div className="relative z-10 text-center text-kasavu-cream mix-blend-difference px-4">
-          <h1 className="font-birdhouse text-[15vw] md:text-[18vw] leading-[0.8] tracking-tight text-shadow-lg">
-            <div>Karthika</div>
-            <div className="hero-ampersand font-serif italic text-antique-gold text-[8vw] my-[-2vw]">&</div>
-            <div>Vaibhav</div>
+        <div className="relative z-10 text-center text-kasavu-cream mix-blend-difference px-4 w-full">
+          {/* Single Row Layout */}
+          <h1 className="flex flex-row items-baseline justify-center w-full font-birdhouse text-[13vw] md:text-[11vw] leading-[0.9] tracking-tight text-shadow-lg gap-3 md:gap-6">
+            <span className="relative z-20">Karthika</span>
+            {/* Ampersand: Nudged right via translate-x-1.5 to fix visual center (increased from 50 to 60) */}
+            <span className="hero-ampersand font-serif italic text-antique-gold relative z-10 translate-x-1.5 md:translate-x-2">&</span>
+            <span className="relative z-20">Vaibhav</span>
           </h1>
-          <div className="mt-8 font-sans text-xs tracking-[0.3em] uppercase opacity-80">
+          
+          <div className="mt-8 font-crimson text-sm md:text-lg tracking-[0.2em] uppercase opacity-90">
             The Union
           </div>
         </div>
@@ -125,6 +128,19 @@ const App: React.FC = () => {
                 className="font-serif text-2xl md:text-3xl leading-snug"
               />
             </div>
+          </div>
+
+          {/* BLOCK 2.5: Photo 4 (Wide Cinematic Crop) */}
+          <div className="md:col-span-8 md:col-start-3 relative py-12 md:py-24">
+             <PhotoLungs src="photo4.jpg" alt="Atmospheric Detail" className="aspect-[21/9]" />
+             <div className="flex justify-between items-end mt-4">
+               <div className="h-[1px] w-24 bg-ink-black opacity-30"></div>
+               <InkText 
+                  as="span" 
+                  text="EPHEMERAL MOMENTS" 
+                  className="font-sans text-[0.5rem] md:text-xs tracking-[0.3em] opacity-60"
+                />
+             </div>
           </div>
           
           {/* BLOCK 3: Centerpiece */}
