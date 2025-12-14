@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Karthika & Vaibhav | The Narrative</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=Syncopate:wght@400;700&family=Italianno&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'kasavu-cream': '#FDF6E3',
+            'ink-black': '#1a1a1a',
+            'antique-gold': '#D4AF37',
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'serif'],
+            sans: ['"Syncopate"', 'sans-serif'],
+            birdhouse: ['"Italianno"', 'cursive'], 
+            crimson: ['"Crimson Text"', 'serif'],
+          },
+          backgroundImage: {
+            'noise': "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnPjxmaWx0ZXIgaWQ9J24nPjxmZVR1cmJ1bGVuY2UgdHlwZT0nZnJhY3RhbE5vaXNlJyBiYXNlRnJlcXVlbmN5PScwLjgnIG51bU9jdGF2ZXM9JzMnIHN0aXRjaFRpbGVzPSdzdGl0Y2gnLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0nMTAwJScgaGVpZ2h0PScxMDAlJyBmaWxsPSd0cmFuc3BhcmVudCcvPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMC41Ii8+PC9zdmc+')",
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Libraries (React, ReactDOM, Babel, GSAP) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    /* Global Styles */
+    body {
+      cursor: none; 
+      background-color: #FDF6E3;
+      overflow-x: hidden;
+    }
+    @keyframes noise-shift {
+      0% { transform: translate(0,0); }
+      10% { transform: translate(-5%,-5%); }
+      20% { transform: translate(-10%,5%); }
+      30% { transform: translate(5%,-10%); }
+      40% { transform: translate(-5%,15%); }
+      50% { transform: translate(-10%,5%); }
+      60% { transform: translate(15%,0); }
+      70% { transform: translate(0,10%); }
+      80% { transform: translate(-15%,0); }
+      90% { transform: translate(10%,5%); }
+      100% { transform: translate(5%,0); }
+    }
+    .animate-noise {
+      animation: noise-shift 2s steps(10) infinite;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FDF6E3; 
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D4AF37; 
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "gsap": "https://esm.sh/gsap@^3.14.2",
+    "gsap/": "https://esm.sh/gsap@^3.14.2/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Main Application Logic -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+    const { ScrollTrigger } = window;
+    
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* --- COMPONENTS --- */
+
+    // 1. NoiseOverlay
+    const NoiseOverlay = () => {
+      return (
+        <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden mix-blend-multiply opacity-[0.08]">
+          <div className="w-[200%] h-[200%] -top-[50%] -left-[50%] absolute animate-noise bg-noise"></div>
+        </div>
+      );
+    };
+
+    // 2. CandleCursor
+    const CandleCursor = () => {
+      const cursorRef = useRef(null);
+      const [isMobile, setIsMobile] = useState(false);
+
+      useEffect(() => {
+        const checkMobile = () => {
+          setIsMobile(window.matchMedia("(pointer: coarse)").matches);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+
+        const cursor = cursorRef.current;
+        if (!cursor || isMobile) return;
+
+        const xTo = gsap.quickTo(cursor, "x", { duration: 0.6, ease: "power3.out" });
+        const yTo = gsap.quickTo(cursor, "y", { duration: 0.6, ease: "power3.out" });
+
+        const moveCursor = (e) => {
+          xTo(e.clientX);
+          yTo(e.clientY);
+        };
+
+        window.addEventListener('mousemove', moveCursor);
+
+        return () => {
+          window.removeEventListener('mousemove', moveCursor);
+          window.removeEventListener('resize', checkMobile);
+        };
+      }, [isMobile]);
+
+      if (isMobile) return null;
+
+      return (
+        <div 
+          ref={cursorRef}
+          className="fixed pointer-events-none z-40 mix-blend-soft-light w-[600px] h-[600px] rounded-full top-0 left-0 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            background: 'radial-gradient(circle, rgba(212,175,55,0.4) 0%, rgba(253,246,227,0) 70%)'
+          }}
+        />
+      );
+    };
+
+    // 3. InkText
+    const InkText = ({ text, className = "", as = 'p' }) => {
+      const elementRef = useRef(null);
+      const Component = as;
+
+      useEffect(() => {
+        const el = elementRef.current;
+        if (!el) return;
+
+        gsap.set(el, { 
+          filter: "blur(4px)", 
+          color: "#555555",
+          opacity: 0 
+        });
+
+        gsap.to(el, {
+          scrollTrigger: {
+            trigger: el,
+            start: "top 85%",
+            end: "top 50%",
+            scrub: 1,
+          },
+          filter: "blur(0px)",
+          color: "#1a1a1a",
+          opacity: 1,
+          ease: "power2.out"
+        });
+
+      }, []);
+
+      return (
+        <Component ref={elementRef} className={`will-change-[filter,color,opacity] ${className}`}>
+          {text}
+        </Component>
+      );
+    };
+
+    // 4. PhotoLungs (Updated for Colorization)
+    const PhotoLungs = ({ src, alt, className = "" }) => {
+      const outerContainerRef = useRef(null);
+      const containerRef = useRef(null);
+      const imgRef = useRef(null);
+      const border1Ref = useRef(null);
+      const border2Ref = useRef(null);
+
+      useEffect(() => {
+        const img = imgRef.current;
+        const container = containerRef.current;
+        const border1 = border1Ref.current;
+        const border2 = border2Ref.current;
+        
+        if (!img || !container) return;
+
+        // 1. Colorization on Scroll (Grayscale -> Color)
+        // Starts grayscale, scrubs to color as it hits center screen. 
+        // Reverses to grayscale if you scroll back up.
+        gsap.fromTo(img, 
+          { filter: "grayscale(100%)" },
+          {
+            filter: "grayscale(0%)",
+            ease: "none",
+            scrollTrigger: {
+              trigger: container,
+              start: "top 90%", // Start adding color when image enters viewport
+              end: "center center", // Full color when image is centered
+              scrub: true
+            }
+          }
+        );
+
+        // 2. Breathe
+        const breatheAnim = gsap.to(img, {
+          scale: 1.05,
+          duration: 10,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut"
+        });
+
+        // 3. Parallax
+        const parallaxAnim = gsap.fromTo(img, 
+          { y: "-10%" },
+          {
+            y: "10%",
+            scrollTrigger: {
+              trigger: container,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true
+            },
+            ease: "none"
+          }
+        );
+
+        // 4. Physics
+        let currentVelocity = 0;
+        let rotation1 = 0;
+        let rotation2 = 0;
+        
+        const velocityTrigger = ScrollTrigger.create({
+            trigger: document.body,
+            onUpdate: (self) => {
+                const v = self.getVelocity();
+                const targetV = Math.max(Math.min(v, 1000), -1000) * 0.002;
+                currentVelocity = targetV;
+            }
+        });
+
+        const physicsTick = () => {
+            rotation1 += currentVelocity; 
+            rotation2 -= currentVelocity * 1.5;
+            currentVelocity *= 0.95; 
+            if (border1) border1.style.transform = `rotate(${rotation1}deg)`;
+            if (border2) border2.style.transform = `rotate(${rotation2}deg)`;
+        };
+
+        gsap.ticker.add(physicsTick);
+
+        return () => {
+          breatheAnim.kill();
+          parallaxAnim.kill();
+          velocityTrigger.kill();
+          gsap.ticker.remove(physicsTick);
+        };
+      }, []);
+
+      return (
+        <div ref={outerContainerRef} className={`relative ${className}`}>
+          <div 
+            ref={border1Ref}
+            className="absolute -inset-4 border border-dashed border-antique-gold opacity-60 z-0 pointer-events-none will-change-transform"
+            style={{ borderWidth: '1px' }}
+          ></div>
+          <div 
+            ref={border2Ref}
+            className="absolute -inset-2 border border-dashed border-antique-gold opacity-80 z-0 pointer-events-none will-change-transform"
+            style={{ borderWidth: '0.5px' }}
+          ></div>
+          <div ref={containerRef} className="relative overflow-hidden w-full h-full z-10">
+            <img 
+                ref={imgRef}
+                src={src} 
+                alt={alt} 
+                className="w-full h-[120%] object-cover object-center origin-center will-change-transform will-change-[filter]"
+            />
+          </div>
+        </div>
+      );
+    };
+
+    // 5. StochasticLine
+    const StochasticLine = ({ orientation, position, length = "100%" }) => {
+      const lineRef = useRef(null);
+
+      useEffect(() => {
+        const line = lineRef.current;
+        if (!line) return;
+
+        const randomDecayPoint = 20 + Math.random() * 70; 
+        
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: document.body,
+            start: "top top",
+            end: `bottom ${100 - randomDecayPoint}%`, 
+            scrub: 1.5
+          }
+        });
+
+        tl.to(line, { stroke: "#D4AF37", duration: 0.05 })
+          .to(line, { strokeDasharray: "4, 12", duration: 0.1 }, "<")
+          .to(line, { opacity: 0, duration: 0.85 }, ">"); 
+
+        return () => {
+          tl.kill();
+        };
+      }, []);
+
+      const isVertical = orientation === 'vertical';
+
+      return (
+        <div className={`absolute pointer-events-none z-10 ${position}`} 
+             style={{ 
+               width: isVertical ? '1px' : length, 
+               height: isVertical ? length : '1px' 
+             }}>
+          <svg width="100%" height="100%" className="overflow-visible">
+            <line 
+              ref={lineRef}
+              x1="0" y1="0" 
+              x2={isVertical ? "0" : "100%"} 
+              y2={isVertical ? "100%" : "0"} 
+              stroke="#1a1a1a" 
+              strokeWidth="0.5"
+              vectorEffect="non-scaling-stroke"
+            />
+          </svg>
+        </div>
+      );
+    };
+
+    // 6. RSVPModal
+    const RSVPModal = ({ isOpen, onClose }) => {
+      const [status, setStatus] = useState('idle');
+
+      if (!isOpen) return null;
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        setStatus('sending');
+        setTimeout(() => {
+          setStatus('success');
+        }, 1500);
+      };
+
+      return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-kasavu-cream transition-opacity duration-500">
+          <div className="absolute top-8 right-8 cursor-pointer group" onClick={onClose}>
+            {/* SVG Close Icon Replacement */}
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="24" height="24" viewBox="0 0 24 24" 
+              fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
+              className="text-ink-black group-hover:text-antique-gold transition-colors"
+            >
+              <path d="M18 6 6 18"/>
+              <path d="m6 6 18 18"/>
+            </svg>
+            <span className="sr-only">Close</span>
+          </div>
+
+          <div className="w-full max-w-md p-8 relative">
+            {status === 'success' ? (
+               <div className="text-center">
+                 <h2 className="font-serif text-3xl italic text-ink-black mb-4">It is noted.</h2>
+                 <p className="font-sans text-xs tracking-widest text-antique-gold">WE AWAIT YOU IN KERALA.</p>
+               </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-12">
+                <div className="space-y-2">
+                  <label className="block font-sans text-[0.6rem] tracking-[0.25em] text-antique-gold">NOMENCLATURE</label>
+                  <input 
+                    required 
+                    type="text" 
+                    placeholder="Full Name"
+                    className="w-full bg-transparent border-b border-gray-300 py-2 font-serif text-2xl text-ink-black focus:border-ink-black focus:outline-none placeholder-gray-300 transition-colors"
+                  />
+                </div>
+                 <div className="space-y-2">
+                  <label className="block font-sans text-[0.6rem] tracking-[0.25em] text-antique-gold">DIGITAL CONTACT</label>
+                  <input 
+                    required 
+                    type="email" 
+                    placeholder="Email Address"
+                    className="w-full bg-transparent border-b border-gray-300 py-2 font-serif text-2xl text-ink-black focus:border-ink-black focus:outline-none placeholder-gray-300 transition-colors"
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  className="w-full py-4 bg-ink-black text-kasavu-cream font-sans text-xs tracking-[0.3em] hover:bg-antique-gold transition-colors duration-500"
+                >
+                  {status === 'sending' ? 'TRANSMITTING...' : 'CONFIRM PRESENCE'}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // 7. LotusScroll (Updated Position & Colors)
+    const LotusScroll = () => {
+      const videoRef = useRef(null);
+      const containerRef = useRef(null);
+      const animationRef = useRef(null);
+
+      useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        const reverseVideo = () => {
+          video.pause();
+          if (animationRef.current) cancelAnimationFrame(animationRef.current);
+
+          const stepReverse = () => {
+            if (video.currentTime > 0.1) {
+              video.currentTime -= 0.05; 
+              animationRef.current = requestAnimationFrame(stepReverse);
+            } else {
+              video.currentTime = 0;
+            }
+          };
+          stepReverse();
+        };
+
+        const playVideo = () => {
+          if (animationRef.current) cancelAnimationFrame(animationRef.current);
+          video.play().catch(() => {});
+        };
+
+        ScrollTrigger.create({
+          trigger: containerRef.current,
+          start: "top 95%", 
+          end: "bottom top", 
+          onEnter: () => playVideo(),       
+          onLeaveBack: () => reverseVideo(),
+        });
+
+        return () => {
+          if (animationRef.current) cancelAnimationFrame(animationRef.current);
+        };
+      }, []);
+
+      return (
+        <div 
+          ref={containerRef} 
+          className="absolute bottom-[-5%] left-[-15%] md:bottom-0 md:left-0 z-0 pointer-events-none"
+        >
+          {/* 
+             - Removed 'grayscale': Restores colors.
+             - Kept 'mix-blend-multiply': Fixes white background issue on iOS Safari if transparency fails.
+             - Removed 'opacity-60': Increases vibrancy.
+          */}
+          <video
+            ref={videoRef}
+            src="media/lotus.webm"
+            muted
+            playsInline
+            preload="auto"
+            className="w-[250px] md:w-[400px] max-w-full mix-blend-multiply contrast-125"
+          />
+        </div>
+      );
+    };
+
+    // --- MAIN APP ---
+    const App = () => {
+      const [isRSVPOpen, setIsRSVPOpen] = useState(false);
+
+      useEffect(() => {
+        gsap.to(".hero-ampersand", {
+          y: 20, 
+          opacity: 0.8,
+          scrollTrigger: {
+            trigger: ".hero-section",
+            start: "top top",
+            end: "bottom top",
+            scrub: true
+          }
+        });
+      }, []);
+
+      return (
+        <div className="relative min-h-screen bg-kasavu-cream text-ink-black selection:bg-antique-gold selection:text-white cursor-none">
+          <NoiseOverlay />
+          <CandleCursor />
+          
+          <RSVPModal isOpen={isRSVPOpen} onClose={() => setIsRSVPOpen(false)} />
+
+          {/* --- HERO SECTION --- */}
+          <section className="hero-section relative h-screen w-full overflow-hidden flex items-center justify-center">
+            <div className="absolute inset-0 z-0">
+              <video 
+                autoPlay 
+                muted 
+                loop 
+                playsInline 
+                className="w-full h-full object-cover filter contrast-[1.1] brightness-90"
+                src="media/hero.mp4"
+              />
+              {/* Reduced opacity from 30 to 10 and removed mix-blend-multiply to allow color through */}
+              <div className="absolute inset-0 bg-ink-black opacity-10"></div>
+            </div>
+
+            <div className="relative z-10 text-center text-kasavu-cream mix-blend-difference px-4 w-full">
+              <h1 className="flex flex-row items-baseline justify-center w-full font-birdhouse text-[13vw] md:text-[11vw] leading-[0.9] tracking-tight text-shadow-lg gap-3 md:gap-6">
+                <span className="relative z-20">Karthika</span>
+                {/* Ampersand Offset logic: 1.5 -> 2.0 (approx 60% of original visual weight) */}
+                <span className="hero-ampersand font-serif italic text-antique-gold relative z-10 translate-x-1.5 md:translate-x-2">&</span>
+                <span className="relative z-20">Vaibhav</span>
+              </h1>
+              
+              <div className="mt-8 font-crimson text-sm md:text-lg tracking-[0.2em] uppercase opacity-90">
+                The Union
+              </div>
+            </div>
+            
+            <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-kasavu-cream to-transparent z-20"></div>
+          </section>
+
+          {/* --- NARRATIVE GRID SECTION --- */}
+          <section className="relative w-full max-w-screen-2xl mx-auto py-24 px-6 md:px-12">
+            
+            <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
+              <StochasticLine orientation="vertical" position="left-[10%]" length="80%" />
+              <StochasticLine orientation="vertical" position="left-[50%]" length="100%" />
+              <StochasticLine orientation="vertical" position="right-[15%]" length="60%" />
+              
+              <StochasticLine orientation="horizontal" position="top-[15%]" length="40%" />
+              <StochasticLine orientation="horizontal" position="top-[45%]" length="100%" />
+              <StochasticLine orientation="horizontal" position="top-[75%]" length="30%" />
+            </div>
+
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-y-24 md:gap-y-48 gap-x-12">
+              
+              <div className="md:col-span-5 md:col-start-2 flex flex-col justify-center">
+                <InkText 
+                  as="h2" 
+                  text="From the gardens of Singapore to the skylines of Dubai." 
+                  className="font-serif text-3xl md:text-5xl leading-tight mb-8"
+                />
+                <InkText 
+                  as="p" 
+                  text="A journey mapped in silence, now culminating in a joyous union amidst the backwaters." 
+                  className="font-serif text-lg md:text-xl italic text-gray-600"
+                />
+              </div>
+              
+              <div className="md:col-span-4 md:col-start-8 mt-12 md:mt-0 relative">
+                <div className="md:translate-y-12">
+                  <PhotoLungs src="media/photo1.jpg" alt="Texture Shot" className="aspect-[3/4]" />
+                  <p className="absolute -bottom-8 -left-8 font-sans text-[0.6rem] tracking-widest -rotate-90 origin-top-right text-antique-gold">
+                    FIG. 01 — ORIGIN
+                  </p>
+                </div>
+              </div>
+
+              <div className="md:col-span-6 md:col-start-1 relative">
+                 <PhotoLungs src="media/photo2.jpg" alt="Silhouette" className="aspect-video" />
+                 <div className="absolute top-4 right-4 md:-right-12 w-24 h-[1px] bg-antique-gold"></div>
+              </div>
+
+              <div className="md:col-span-4 md:col-start-8 flex flex-col justify-end">
+                 <div className="border-l border-antique-gold pl-6 py-4">
+                  <InkText 
+                    as="p" 
+                    text="We invite you to witness the beginning of our forever. Not as spectators, but as part of the atmosphere." 
+                    className="font-serif text-2xl md:text-3xl leading-snug"
+                  />
+                </div>
+              </div>
+
+              <div className="md:col-span-8 md:col-start-3 relative py-12 md:py-24">
+                 <PhotoLungs src="media/photo4.jpg" alt="Atmospheric Detail" className="aspect-[21/9]" />
+                 <div className="flex justify-between items-end mt-4">
+                   <div className="h-[1px] w-24 bg-ink-black opacity-30"></div>
+                   <InkText 
+                      as="span" 
+                      text="EPHEMERAL MOMENTS" 
+                      className="font-sans text-[0.5rem] md:text-xs tracking-[0.3em] opacity-60"
+                    />
+                 </div>
+              </div>
+              
+               <div className="md:col-span-8 md:col-start-3 text-center py-24">
+                 {/* Removed manual grayscale class here, handled by PhotoLungs now */}
+                 <PhotoLungs src="media/candid.jpg" alt="Portrait" className="aspect-[4/5] md:w-1/2 mx-auto mb-12" />
+                 
+                 <InkText 
+                    as="div" 
+                    text="AUGUST 20TH, 2026" 
+                    className="font-sans text-sm md:text-base tracking-[0.4em] mb-2"
+                  />
+                 <InkText 
+                    as="div" 
+                    text="KRISHNA BEACH RESORT, KERALA" 
+                    className="font-sans text-xs md:text-sm tracking-[0.2em] text-gray-500"
+                  />
+               </div>
+
+            </div>
+          </section>
+
+          {/* --- FINALE / RSVP --- */}
+          {/* Increased padding-bottom significantly (pb-48) to push RSVP button up away from bottom elements */}
+          <section className="relative h-[60vh] flex flex-col items-center justify-center pb-48">
+            <LotusScroll />
+
+            <div className="relative z-10 w-[1px] h-24 bg-ink-black mb-12"></div>
+            
+            <p className="relative z-10 font-serif text-xl italic mb-8">The Narrative Continues</p>
+            
+            <button 
+              onClick={() => setIsRSVPOpen(true)}
+              className="relative z-20 group px-12 py-4 overflow-hidden"
+            >
+              <span className="relative z-10 font-sans text-sm tracking-[0.3em] group-hover:text-kasavu-cream transition-colors duration-300">
+                RSVP
+              </span>
+              <div className="absolute inset-0 bg-ink-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left ease-out"></div>
+              <div className="absolute bottom-0 left-0 w-full h-[1px] bg-ink-black group-hover:opacity-0 transition-opacity"></div>
+            </button>
+
+             <div className="absolute bottom-8 w-full text-center z-10">
+                <p className="font-sans text-[0.5rem] tracking-[0.5em] opacity-40">EST. 2026 — KERALA</p>
+             </div>
+          </section>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
