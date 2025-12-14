@@ -1,1 +1,0 @@
-// Logic moved to index.html for static GitHub Pages compatibility without build steps.
